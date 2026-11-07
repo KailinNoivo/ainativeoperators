@@ -1,0 +1,1506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="The operator community for AI-native ecommerce. A framework to follow, a library to take from, and the people to copy. Weekly, practical, free.">
+<meta property="og:title" content="AI Native Operators">
+<meta property="og:description" content="For people who run ecommerce sites and want to run them with AI.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ainativeoperators.org/">
+<link rel="canonical" href="https://ainativeoperators.org/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%228%22%20fill%3D%22%23FFD23F%22/%3E%3Ctext%20x%3D%2232%22%20y%3D%2244%22%20text-anchor%3D%22middle%22%20font-family%3D%22Helvetica%2CArial%2Csans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2236%22%20fill%3D%22%2313170F%22%3EA%3C/text%3E%3C/svg%3E">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>AI Native Operators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Layout concept: a stockroom shelf system. Left-aligned editorial grid, hard 1px rules between
+     "aisles", yellow label tape for section markers, pick lists and bin cards as the objects.
+     Multi-page site routed on the hash; one view visible at a time. */
+  :root {
+    --bg: #F1F3EE;
+    --surface: #FFFFFF;
+    --fg: #13170F;
+    --muted: #5B635A;
+    --line: #C9CFC5;
+    --line-strong: #13170F;
+    --label: #FFD23F;
+    --label-ink: #13170F;
+    --go: #1E6B3C;
+    --go-soft: #DCEEE2;
+    --display: 'Bricolage Grotesque', 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+    --body: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121410; --surface: #1A1D18; --fg: #ECEFE6; --muted: #A3AB9F; --line: #30362D;
+      --line-strong: #ECEFE6; --label: #FFD23F; --label-ink: #13170F; --go: #5FCB88; --go-soft: #1B3324;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121410; --surface: #1A1D18; --fg: #ECEFE6; --muted: #A3AB9F; --line: #30362D;
+    --line-strong: #ECEFE6; --label: #FFD23F; --label-ink: #13170F; --go: #5FCB88; --go-soft: #1B3324;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+  a { color: inherit; }
+  h1, h2, h3, h4 { font-family: var(--display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .mono { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .muted { color: var(--muted); }
+  .tape { display: inline-block; background: var(--label); color: var(--label-ink); font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 10px 4px; transform: rotate(-1deg); box-shadow: 0 1px 0 rgba(0,0,0,0.25); }
+  .chipstat { display: inline-block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border: 1px solid var(--line); border-radius: 2px; color: var(--muted); }
+  .chipstat.go { background: var(--go-soft); color: var(--go); border-color: transparent; }
+  .chipstat.ink { background: var(--fg); color: var(--bg); border-color: transparent; }
+
+  /* Top bar */
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--bg); border-bottom: 1px solid var(--line-strong); }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; flex-wrap: wrap; }
+  .wordmark { font-family: var(--display); font-weight: 800; font-size: 20px; letter-spacing: -0.02em; text-decoration: none; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .wordmark small { font-family: var(--mono); font-weight: 400; font-size: 11px; letter-spacing: 0.08em; color: var(--muted); }
+  nav.links { display: flex; gap: 18px; align-items: center; order: 2; }
+  .wordmark { order: 1; }
+  nav.links a { text-decoration: none; font-size: 14.5px; color: var(--muted); padding: 4px 0; border-bottom: 2px solid transparent; }
+  nav.links a:hover { color: var(--fg); }
+  nav.links a[aria-current="page"] { color: var(--fg); border-bottom-color: var(--label); }
+  .topright { display: flex; gap: 10px; align-items: center; order: 3; }
+  .btn.menubtn { display: none; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--body); font-weight: 600; font-size: 15px; text-decoration: none; cursor: pointer; border: 1.5px solid var(--line-strong); background: var(--fg); color: var(--bg); padding: 11px 18px; border-radius: 3px; transition: transform .12s ease; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.ghost { background: transparent; color: var(--fg); }
+  .btn.small { padding: 8px 14px; font-size: 14px; }
+  .btn.yellow { background: var(--label); color: var(--label-ink); border-color: var(--label); }
+  :focus-visible { outline: 3px solid var(--label); outline-offset: 2px; }
+
+  /* Sections */
+  .view[hidden] { display: none; }
+  section.aisle { border-top: 1px solid var(--line-strong); }
+  section.aisle.first { border-top: 0; }
+  section.aisle .wrap { padding-block: 64px; }
+  .shelf { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+  .shelf::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .lead { font-size: 19px; max-width: 62ch; color: var(--muted); }
+  .h1 { font-size: clamp(38px, 5.4vw, 64px); font-weight: 800; letter-spacing: -0.035em; max-width: 16ch; }
+  .h2 { font-size: clamp(30px, 4vw, 44px); max-width: 22ch; }
+  .h3 { font-size: 22px; }
+  .prose { max-width: 66ch; }
+  .prose p + p { margin-top: 14px; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .pagehead { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: end; }
+  .pagehead .lead { margin-top: 18px; }
+  .pagehead aside { font-size: 15px; color: var(--muted); border-left: 2px solid var(--label); padding-left: 16px; }
+
+  /* Hero */
+  .hero .wrap { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: start; padding-block: 72px 64px; }
+  .hero h1 { font-size: clamp(42px, 6.2vw, 78px); font-weight: 800; letter-spacing: -0.035em; max-width: 14ch; }
+  .hero h1 mark { background: linear-gradient(transparent 55%, var(--label) 55%); color: inherit; padding: 0 2px; }
+  .hero .lead { margin-top: 24px; font-size: 20px; }
+  .hero .note { margin-top: 18px; font-size: 14px; color: var(--muted); }
+
+  /* Pick list card */
+  .pick { background: var(--surface); border: 1px solid var(--line-strong); padding: 22px 22px 18px; font-family: var(--mono); font-size: 13px; line-height: 1.45; }
+  .pick .head { display: flex; justify-content: space-between; gap: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-size: 11.5px; color: var(--muted); border-bottom: 1px dashed var(--line); padding-bottom: 12px; }
+  .pick .title { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: -0.02em; margin: 14px 0 12px; }
+  .pick table { width: 100%; border-collapse: collapse; }
+  .pick td { padding: 9px 0; border-bottom: 1px dashed var(--line); vertical-align: top; }
+  .pick td:first-child { width: 84px; padding-right: 12px; color: var(--muted); white-space: nowrap; }
+  .pick td:last-child { width: 62px; text-align: right; }
+  .pick tr:last-child td { border-bottom: 0; }
+  .who { display: inline-block; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 6px; border: 1px solid var(--line); border-radius: 2px; }
+  .who.agent { background: var(--go-soft); color: var(--go); border-color: transparent; }
+  .pick .foot { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--muted); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .barcode { height: 28px; width: 120px; background: repeating-linear-gradient(90deg, var(--fg) 0 2px, transparent 2px 4px, var(--fg) 4px 5px, transparent 5px 8px, var(--fg) 8px 11px, transparent 11px 13px); opacity: .85; }
+
+  /* Pillars / cards */
+  .pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .pillar { background: var(--surface); border: 1px solid var(--line-strong); padding: 24px 22px 22px; display: flex; flex-direction: column; gap: 12px; min-width: 0; text-decoration: none; }
+  .pillar .kicker { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .pillar h3 { font-size: 26px; }
+  .pillar p { color: var(--muted); font-size: 15.5px; }
+  .pillar .go { margin-top: auto; padding-top: 12px; font-weight: 600; font-size: 15px; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .note-row { margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 24px; }
+  .note-row p { max-width: 70ch; }
+
+  /* Five A's */
+  .five { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--line-strong); background: var(--surface); }
+  .a { padding: 22px 18px 20px; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .a:last-child { border-right: 0; }
+  .a .big { font-family: var(--display); font-weight: 800; font-size: 30px; letter-spacing: -0.03em; line-height: 1; }
+  .a .big::first-letter { background: var(--label); color: var(--label-ink); padding: 0 3px; }
+  .a p { font-size: 15px; }
+  .a .eg { font-family: var(--mono); font-size: 12.5px; color: var(--muted); margin-top: auto; padding-top: 10px; border-top: 1px dashed var(--line); }
+  .a .eg b { color: var(--fg); font-weight: 500; }
+  .stage { margin-top: 20px; font-size: 16px; color: var(--muted); max-width: 70ch; }
+  .adeep { border: 1px solid var(--line-strong); background: var(--surface); }
+  .adeep .row { display: grid; grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 3fr)); gap: 0; border-top: 1px solid var(--line); }
+  .adeep .row:first-child { border-top: 0; }
+  .adeep .cell { padding: 18px 16px; border-left: 1px solid var(--line); min-width: 0; font-size: 14.5px; }
+  .adeep .cell:first-child { border-left: 0; }
+  .adeep .cell .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
+  .adeep .big { font-family: var(--display); font-weight: 800; font-size: 26px; letter-spacing: -0.03em; line-height: 1; }
+  .adeep .big::first-letter { background: var(--label); color: var(--label-ink); padding: 0 3px; }
+  .adeep .hdr { background: var(--bg); }
+  .adeep .hdr .cell { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 10px 16px; }
+  .adeep .cell .lbl { display: none; }
+
+  /* Definition block */
+  .defn { border: 1px solid var(--line-strong); background: var(--surface); padding: 32px 28px; }
+  .defn .word { font-family: var(--display); font-weight: 800; font-size: 34px; letter-spacing: -0.03em; }
+  .defn .pos { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-left: 10px; }
+  .defn .means { font-size: 22px; line-height: 1.35; margin-top: 14px; max-width: 40ch; font-family: var(--display); font-weight: 500; letter-spacing: -0.01em; }
+  .shift { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line-strong); }
+  .shift > div { padding: 22px; min-width: 0; }
+  .shift > div + div { border-left: 1px solid var(--line-strong); background: var(--surface); }
+  .shift .lbl { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: block; }
+  .shift li { padding: 10px 0; border-top: 1px dashed var(--line); font-size: 15.5px; }
+  .shift li:first-of-type { border-top: 0; }
+  .principles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+  .principle { border-top: 3px solid var(--fg); padding-top: 14px; min-width: 0; }
+  .principle h4 { font-size: 19px; margin-bottom: 8px; }
+  .principle p { font-size: 14.5px; color: var(--muted); }
+  .gloss { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; }
+  .gloss div { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 14px; padding: 12px 0; border-top: 1px dashed var(--line); font-size: 15px; }
+  .gloss dt { font-family: var(--mono); font-size: 13px; color: var(--go); font-weight: 500; }
+  .gloss dd { margin: 0; color: var(--muted); }
+
+  /* Assessment */
+  .quiz { display: grid; gap: 14px; }
+  .q { background: var(--surface); border: 1px solid var(--line); padding: 16px 18px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 24px; align-items: center; }
+  .q .qt { font-size: 15.5px; }
+  .q .qa { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 4px; }
+  .opts { display: flex; gap: 6px; flex-wrap: wrap; }
+  .opts label { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding: 7px 12px; border: 1px solid var(--line-strong); border-radius: 999px; cursor: pointer; background: transparent; }
+  .opts input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .opts input:checked + label { background: var(--fg); color: var(--bg); }
+  .opts input:focus-visible + label { outline: 3px solid var(--label); outline-offset: 2px; }
+  .result { border: 1px solid var(--line-strong); background: var(--surface); padding: 24px 22px; margin-top: 20px; }
+  .result .stageword { font-family: var(--display); font-weight: 800; font-size: 34px; letter-spacing: -0.03em; }
+  .bars { display: grid; gap: 8px; margin: 18px 0; }
+  .bar { display: grid; grid-template-columns: 110px minmax(0, 1fr) 40px; gap: 12px; align-items: center; font-family: var(--mono); font-size: 12.5px; }
+  .bar .track { height: 12px; background: var(--bg); border: 1px solid var(--line); position: relative; }
+  .bar .fill { position: absolute; inset: 0 auto 0 0; background: var(--label); }
+  .bar .fill.done { background: var(--go); }
+  .moves li { padding: 10px 0; border-top: 1px dashed var(--line); font-size: 15.5px; }
+
+  /* Path */
+  .weeks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .week { background: var(--surface); border: 1px solid var(--line-strong); padding: 20px 20px 16px; min-width: 0; }
+  .week .wk { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .week h3 { font-size: 24px; margin: 6px 0 4px; }
+  .week .aim { font-size: 15px; color: var(--muted); margin-bottom: 12px; }
+  .task { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-top: 1px dashed var(--line); font-size: 15px; align-items: start; }
+  .task input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--go); }
+  .task label { cursor: pointer; }
+  .task small { display: block; font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .progress { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; font-family: var(--mono); font-size: 12.5px; }
+  .progress .track { flex: 1; height: 10px; border: 1px solid var(--line-strong); background: var(--surface); position: relative; }
+  .progress .fill { position: absolute; inset: 0 auto 0 0; background: var(--go); width: 0; transition: width .2s ease; }
+
+  /* Vault */
+  .vault-file { background: var(--surface); border: 1px solid var(--line-strong); font-family: var(--mono); font-size: 13px; line-height: 1.55; padding: 18px 20px; display: grid; gap: 8px; min-width: 0; }
+  .vault-file .c { color: var(--muted); padding-bottom: 8px; border-bottom: 1px dashed var(--line); }
+  .vault-file .row { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 12px; }
+  .vault-file .k { color: var(--go); }
+  .tmpl { background: var(--surface); border: 1px solid var(--line-strong); padding: 0; }
+  .tmpl .bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); grid-template-columns: none; }
+  .tmpl pre { margin: 0; padding: 16px 18px; font-family: var(--mono); font-size: 12.5px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 520px; overflow: auto; }
+  .fmt { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .fmt div { border-top: 3px solid var(--fg); padding-top: 12px; min-width: 0; }
+  .fmt b { font-family: var(--mono); font-weight: 500; font-size: 12.5px; color: var(--go); display: block; margin-bottom: 6px; }
+  .fmt p { font-size: 14.5px; color: var(--muted); }
+
+  /* Stockroom */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; align-items: center; }
+  .filters .lbl { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
+  .chip { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; padding: 7px 12px; border: 1px solid var(--line-strong); background: transparent; color: var(--fg); border-radius: 999px; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+  .bins { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+  .bin { background: var(--surface); border: 1px solid var(--line); padding: 18px 18px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 210px; }
+  .bin .kind { display: flex; justify-content: space-between; gap: 10px; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .bin .kind .when { color: var(--go); }
+  .bin h3 { font-size: 21px; font-weight: 700; }
+  .bin p { font-size: 15px; color: var(--muted); }
+  .bin .owner { margin-top: auto; padding-top: 10px; border-top: 1px dashed var(--line); font-family: var(--mono); font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .bin[hidden] { display: none; }
+  .empty { padding: 24px; border: 1px dashed var(--line); color: var(--muted); font-size: 15px; margin-top: 16px; }
+
+  /* In production */
+  .prod { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .story { background: var(--surface); border: 1px solid var(--line-strong); padding: 22px 22px 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .story .meta { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .story h3 { font-size: 24px; }
+  .story p { font-size: 15.5px; }
+  .story .fact { margin-top: auto; padding-top: 12px; border-top: 1px dashed var(--line); font-family: var(--mono); font-size: 12.5px; }
+  .story .fact b { color: var(--go); font-weight: 500; }
+
+  /* Contributors */
+  .seats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+  .seat { border: 1px solid var(--line); background: var(--surface); padding: 18px; min-height: 170px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .seat.open { border-style: dashed; background: transparent; }
+  .seat .role { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .seat .name { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: -0.02em; }
+  .seat .co { font-size: 14.5px; }
+  .seat .desc { font-size: 14.5px; color: var(--muted); margin-top: auto; padding-top: 10px; }
+  .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .rules p { font-size: 15px; max-width: 40ch; }
+  .rules b { display: block; font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+
+  /* Sessions */
+  .sess { display: grid; grid-template-columns: 140px minmax(0, 1fr) auto; gap: 24px; align-items: start; padding: 22px 0; border-top: 1px solid var(--line); }
+  .sess:first-of-type { border-top: 0; }
+  .sess .date { font-family: var(--mono); font-size: 13px; line-height: 1.4; }
+  .sess .date b { display: block; font-family: var(--display); font-size: 28px; font-weight: 800; letter-spacing: -0.03em; }
+  .sess h3 { font-size: 24px; margin-bottom: 6px; }
+  .sess p { font-size: 15.5px; color: var(--muted); max-width: 60ch; }
+
+  /* Band */
+  .band { background: var(--fg); color: var(--bg); }
+  .band .wrap { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 40px; align-items: end; }
+  .band h2 { color: var(--bg); }
+  .band p { color: var(--bg); opacity: .8; max-width: 56ch; margin-top: 16px; font-size: 17px; }
+  .band .shelf::after { background: color-mix(in srgb, var(--bg) 30%, transparent); }
+
+  /* Forms */
+  form.join { display: flex; gap: 10px; margin-top: 24px; max-width: 560px; }
+  form.join input, form.contrib input, form.contrib textarea { font: inherit; padding: 12px 14px; border: 1.5px solid var(--line-strong); border-radius: 3px; background: var(--surface); color: var(--fg); width: 100%; min-width: 0; }
+  form.join input { flex: 1; }
+  form.contrib { display: grid; gap: 12px; max-width: 620px; margin-top: 20px; }
+  form.contrib textarea { min-height: 110px; resize: vertical; }
+  .thanks { margin-top: 20px; padding: 16px 18px; background: var(--go-soft); color: var(--go); border-left: 4px solid var(--go); max-width: 620px; font-weight: 500; }
+  .fine { margin-top: 12px; font-size: 13.5px; color: var(--muted); }
+
+  footer { border-top: 1px solid var(--line-strong); }
+  footer .wrap { padding-block: 36px 40px; display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: 28px; font-size: 14px; color: var(--muted); }
+  footer h4 { font-family: var(--mono); font-weight: 500; font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  footer li { padding: 3px 0; }
+  footer a { text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  footer p { max-width: 44ch; }
+
+  @media (max-width: 1100px) {
+    nav.links { display: none; order: 4; width: 100%; flex-direction: column; align-items: flex-start; gap: 4px; padding: 8px 0 6px; border-top: 1px solid var(--line); }
+    nav.links.open { display: flex; }
+    nav.links a { font-size: 16px; padding: 8px 0; }
+    .btn.menubtn { display: inline-flex; }
+  }
+  @media (max-width: 960px) {
+    .hero .wrap, .pagehead { grid-template-columns: 1fr; gap: 32px; }
+    .five, .principles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .five { gap: 0; }
+    .a { border-bottom: 1px solid var(--line); }
+    .a:nth-child(2n) { border-right: 0; }
+    .a:last-child { grid-column: 1 / -1; }
+    .adeep .row { grid-template-columns: 1fr; }
+    .adeep .cell { border-left: 0; border-top: 1px dashed var(--line); }
+    .adeep .cell:first-child { border-top: 0; }
+    .adeep .cell .lbl { display: block; }
+    .adeep .hdr { display: none; }
+    .bins, .pillars, .grid3, .seats, .prod, .fmt { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .band .wrap, .note-row, .gloss { grid-template-columns: 1fr; }
+    .note-row { gap: 12px; }
+    footer .wrap { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sess { grid-template-columns: 110px minmax(0, 1fr); }
+    .sess .act { grid-column: 2; }
+  }
+  @media (max-width: 600px) {
+    body { font-size: 16px; }
+    section.aisle .wrap { padding-block: 48px; }
+    .hero .wrap { padding-block: 44px 48px; }
+    .grid2, .five, .principles, .bins, .pillars, .grid3, .grid4, .seats, .prod, .fmt, .weeks, .shift, .rules { grid-template-columns: 1fr; }
+    .shift > div + div { border-left: 0; border-top: 1px solid var(--line-strong); }
+    .a { border-right: 0; }
+    form.join { flex-direction: column; }
+    .hero .lead { font-size: 18px; }
+    .q { grid-template-columns: 1fr; }
+    .gloss div { grid-template-columns: 1fr; gap: 4px; }
+    .vault-file .row { grid-template-columns: 1fr; gap: 2px; }
+    .sess { grid-template-columns: 1fr; gap: 10px; }
+    .sess .act { grid-column: 1; }
+    footer .wrap { grid-template-columns: 1fr; }
+    .bar { grid-template-columns: 90px minmax(0, 1fr) 36px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .btn, .progress .fill { transition: none; } }
+</style>
+</head>
+<body>
+
+
+<header class="top">
+  <div class="wrap">
+    <a class="wordmark" href="#home">AI Native Operators <small>ainativeoperators.org</small></a>
+    <div class="topright">
+      <button class="btn ghost small menubtn" type="button" id="menuBtn" aria-expanded="false" aria-controls="siteNav">Menu</button>
+      <a class="btn small" href="#join">Join the weekly drop</a>
+    </div>
+    <nav class="links" id="siteNav" aria-label="Site">
+      <a href="#explained" data-nav="explained">AI-native, explained</a>
+      <a href="#five-as" data-nav="five-as">The Five A's</a>
+      <a href="#path" data-nav="path">The Path</a>
+      <a href="#stockroom" data-nav="stockroom">Stockroom</a>
+      <a href="#production" data-nav="production">In production</a>
+      <a href="#contributors" data-nav="contributors">Contributors</a>
+      <a href="#sessions" data-nav="sessions">Sessions</a>
+      <a href="#partners" data-nav="partners">Partners</a>
+      <a href="#about" data-nav="about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ============================ HOME ============================ -->
+<div class="view" id="view-home">
+  <section class="aisle first hero">
+    <div class="wrap">
+      <div>
+        <span class="tape">The operator community for AI-native ecommerce</span>
+        <h1 style="margin-top:22px">For people who run ecommerce sites and want to <mark>run them with AI.</mark></h1>
+        <p class="lead">A framework to follow, a library to take from, and the people to copy. Practical, weekly, and from operators who already run their stores this way. Nothing to buy.</p>
+        <div class="cta-row">
+          <a class="btn" href="#path">Start the path</a>
+          <a class="btn ghost" href="#stockroom">Open the Stockroom</a>
+        </div>
+        <p class="note">First drop lands in December. Weekly from January.</p>
+      </div>
+      <aside class="pick" aria-label="Sample pick list: an operator's week">
+        <div class="head"><span>Pick list · operator's week</span><span>Sample</span></div>
+        <div class="title">What the agents do. What you do.</div>
+        <table>
+          <tr><td>Mon 06:30</td><td>Morning run. What broke overnight, ranked by lost orders. Two fixes queued as pull requests.</td><td><span class="who agent">agent</span></td></tr>
+          <tr><td>Mon 09:00</td><td>Read the run. Approve the two fixes. Ten minutes.</td><td><span class="who">you</span></td></tr>
+          <tr><td>Tue 07:00</td><td>Store pulse. Conversion, speed and errors against last week, by device.</td><td><span class="who agent">agent</span></td></tr>
+          <tr><td>Wed</td><td>Ask: "Which products get views and no sales this month?" Pick one. Draft an A/B test.</td><td><span class="who">you</span></td></tr>
+          <tr><td>Thu 01:00</td><td>Weekly scan. Top two errors, top two speed issues, issues opened in GitHub.</td><td><span class="who agent">agent</span></td></tr>
+          <tr><td>Fri</td><td>Anticipate: check the launch page on mobile before the email goes out.</td><td><span class="who agent">agent</span></td></tr>
+        </table>
+        <div class="foot"><span>Agent-run. Human-read.</span><span class="barcode" aria-hidden="true"></span></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">Three things. One idea.</span></div>
+      <h2 class="h2">The idea: your store's data, your judgment, agents doing the week.</h2>
+      <p class="lead" style="margin:16px 0 28px">Everything here hangs off three things. A framework that tells you where you are. A library you can take from. People who are already there.</p>
+      <div class="pillars">
+        <a class="pillar" href="#five-as">
+          <span class="kicker">The framework</span>
+          <h3>The Five A's</h3>
+          <p>Ask, Analyze, Activate, Automate, Anticipate. Five habits, in order. Where you are on them is where your store is.</p>
+          <span class="go">See the Five A's →</span>
+        </a>
+        <a class="pillar" href="#stockroom">
+          <span class="kicker">The library</span>
+          <h3>The Stockroom</h3>
+          <p>Skills you can install, prompts you can paste, playbooks, five-minute clips and top-10s. Free, portable, stocked by operators.</p>
+          <span class="go">Open the Stockroom →</span>
+        </a>
+        <a class="pillar" href="#contributors">
+          <span class="kicker">The people</span>
+          <h3>Founding contributors</h3>
+          <p>Seven seats for people who make things. Their names on what they make. No logos, no sponsors on stage.</p>
+          <span class="go">Meet the contributors →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">In production</span></div>
+      <div class="pagehead">
+        <div>
+          <h2 class="h2">What operators' agents are already doing.</h2>
+          <p class="lead">Not demos. Things running on real stores this week. Names and numbers with permission, in the December drop.</p>
+        </div>
+        <aside>These four are the shape of the stories we publish: what the agent does, what the human does, and one number that proves it.</aside>
+      </div>
+      <div class="prod" style="margin-top:28px">
+        <article class="story">
+          <div class="meta"><span>Cycling retailer · UK</span><span>Activate · Automate</span></div>
+          <h3>A hundred release markers a fortnight</h3>
+          <p>The developers live in Claude Code and GitHub. Every merge posts a release marker to monitoring automatically, so "did this morning's release break anything" is a question with evidence behind it, not a feeling.</p>
+          <div class="fact"><b>100+</b> markers in two weeks, zero typed by hand</div>
+        </article>
+        <article class="story">
+          <div class="meta"><span>Menswear brand · US</span><span>Automate</span></div>
+          <h3>Monday, 1am: the scan</h3>
+          <p>A scheduled run picks the top two errors and the top two speed issues, then opens the issues in GitHub before anyone is awake. Issue first, then PR. Nothing ships without a ticket to trace it to.</p>
+          <div class="fact"><b>4</b> issues waiting every Monday morning</div>
+        </article>
+        <article class="story">
+          <div class="meta"><span>DIY retailer · Canada</span><span>Anticipate</span></div>
+          <h3>Black Friday with a team of four</h3>
+          <p>Agents watched checkout through the weekend while the head of ecommerce read the morning run from his phone. The team spent the busiest days deciding, not looking.</p>
+          <div class="fact"><b>BFCM</b> run by four people and the agents</div>
+        </article>
+        <article class="story">
+          <div class="meta"><span>Apparel · multi-brand</span><span>Ask · Activate</span></div>
+          <h3>Finding to shipping in one sitting</h3>
+          <p>"Which products get views and no sales this month?" became a live A/B test the same afternoon. Drag and drop on the theme, a preview, QA, go. The agency found out on Monday, with the before and after attached.</p>
+          <div class="fact"><b>1 afternoon</b> from question to live test</div>
+        </article>
+      </div>
+      <div class="cta-row"><a class="btn ghost" href="#production">All of them, and how they did it →</a></div>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">Fresh on the shelf</span></div>
+      <h2 class="h2">Latest from the Stockroom.</h2>
+      <div class="bins">
+        <article class="bin">
+          <div class="kind"><span>Playbook · Vault</span><span class="when">Available</span></div>
+          <h3>The vault template</h3>
+          <p>The one file every AI tool you use should read first. Copy it, fill it in, point your tools at it.</p>
+          <div class="owner"><span>Contributor: the community</span><a href="#vault">Open →</a></div>
+        </article>
+        <article class="bin">
+          <div class="kind"><span>Playbook · Vault</span><span class="when">December</span></div>
+          <h3>Vaulting 101</h3>
+          <p>Build the knowledge base your AI reads first. One file, one afternoon, every tool you use gets smarter.</p>
+          <div class="owner"><span>Contributor: co-founders</span><a href="#stockroom">Stockroom →</a></div>
+        </article>
+        <article class="bin">
+          <div class="kind"><span>Top 10 · Anticipate</span><span class="when">December</span></div>
+          <h3>Ten things operators wish they'd known before Black Friday</h3>
+          <p>What broke, what held, and what they're changing before next year. Companion to the first session.</p>
+          <div class="owner"><span>Contributor: the December panel</span><a href="#sessions">Sessions →</a></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">Founding contributors</span></div>
+      <h2 class="h2">People, not logos.</h2>
+      <p class="lead" style="margin-top:16px">Operators who run real stores, and the people who build for them. Seven seats. Each one puts a piece in the library every quarter.</p>
+      <div class="seats">
+        <div class="seat open"><span class="role"><span>Operator seat</span><span class="chipstat">Invitations out</span></span><span class="name">Announced in December</span><span class="co">A CDO whose developers live in Claude Code and GitHub</span></div>
+        <div class="seat open"><span class="role"><span>Operator seat</span><span class="chipstat">Invitations out</span></span><span class="name">Announced in December</span><span class="co">An operator who builds his own agents on the store's data</span></div>
+        <div class="seat open"><span class="role"><span>Operator seat</span><span class="chipstat">Invitations out</span></span><span class="name">Announced in December</span><span class="co">A head of ecommerce running two stores through the morning run</span></div>
+        <div class="seat open"><span class="role"><span>Enterprise seat</span><span class="chipstat">Invitations out</span></span><span class="name">Announced in December</span><span class="co">Day to day on one of the biggest retail sites in the US</span></div>
+        <div class="seat"><span class="role"><span>Co-founder</span><span class="chipstat ink">Operator</span></span><span class="name">David Levin</span><span class="co">W. Kleinberg</span></div>
+        <div class="seat"><span class="role"><span>Co-founder</span><span class="chipstat ink">Host</span></span><span class="name">Kailin Noivo</span><span class="co">President, Noibu</span></div>
+      </div>
+      <div class="cta-row"><a class="btn ghost" href="#contributors">What a seat is, and the one that's open →</a></div>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">Three ways in</span></div>
+      <div class="grid3">
+        <div><h3 class="h3">Read</h3><p class="muted" style="margin-top:8px">One email a week. The new piece, who made it, the one thing to try. <a href="#join">Join the weekly drop</a>.</p></div>
+        <div><h3 class="h3">Take</h3><p class="muted" style="margin-top:8px">Install a skill, paste a prompt, copy the vault template. Everything in the <a href="#stockroom">Stockroom</a> is free and leaves with you.</p></div>
+        <div><h3 class="h3">Make</h3><p class="muted" style="margin-top:8px">Built something that works at your store? Send it. Contributors get a seat on the shelf and their name on the piece. <a href="#contributors">How seats work</a>.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="aisle band">
+    <div class="wrap">
+      <div>
+        <div class="shelf"><span class="tape">First session · December</span></div>
+        <h2 class="h2">What you wish you had known before Black Friday.</h2>
+        <p>Forty-five minutes, online, operators only on the panel. What broke, what held, and what they're changing before next year. Date and panel announced in the first drop.</p>
+      </div>
+      <div><a class="btn yellow" href="#join">Save a seat</a></div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================ EXPLAINED ============================ -->
+<div class="view" id="view-explained" hidden>
+  <section class="aisle first">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">AI-native, explained</span></div>
+      <div class="pagehead">
+        <div>
+          <h1 class="h1">What an AI-native operator is.</h1>
+          <p class="lead">Not a job title. A way of running the store, and you can tell one from the outside in about a minute.</p>
+        </div>
+        <aside>If your week starts by reading what the agents found, and your changes ship with a before and after attached, you're already one. The rest of this page is how to get there on purpose.</aside>
+      </div>
+      <div class="defn" style="margin-top:36px">
+        <span class="word">AI-native operator</span><span class="pos">noun</span>
+        <p class="means">Someone who runs an ecommerce site through agents that read the store's own data, keeps the judgment for themselves, and can show the before and after of every change.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">The shift</span></div>
+      <h2 class="h2">From somewhere you go to something your tools can ask.</h2>
+      <p class="lead" style="margin:16px 0 28px">For years the data lived in a dashboard. Someone had to log in, know which tab to trust, know which big number wasn't a bug count. That knowledge lived in two heads per company. Here is what changes.</p>
+      <div class="shift">
+        <div>
+          <span class="lbl">Before</span>
+          <ul>
+            <li>A dashboard you go to. Two people know how to read it.</li>
+            <li>Problems arrive as customer emails, three days late.</li>
+            <li>The developer backlog is the bottleneck. Every idea waits a sprint.</li>
+            <li>Changes ship without evidence. Did it work? Nobody can say.</li>
+            <li>Every tool has its own memory of your store, and none of them agree.</li>
+          </ul>
+        </div>
+        <div>
+          <span class="lbl">After</span>
+          <ul>
+            <li>You ask the store a question in plain English and the answer comes back ranked by money.</li>
+            <li>Problems arrive in the morning run, ranked, with the fix already drafted.</li>
+            <li>Finding to shipping in one sitting. The bottleneck is knowing what to do, which is your job.</li>
+            <li>Every change gets a release marker and a before and after.</li>
+            <li>One vault, written by you, that every tool reads first.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">Five principles</span></div>
+      <h2 class="h2">How an AI-native operator works.</h2>
+      <div class="principles" style="margin-top:28px">
+        <div class="principle"><h4>Your data, in plain English</h4><p>Questions go to the store. Answers come back from your own sessions, errors and orders, ranked by what they cost you.</p></div>
+        <div class="principle"><h4>Finding to shipping</h4><p>Analysis that doesn't end in a change is a report. A finding should become a pull request, a theme change or a test in the same sitting.</p></div>
+        <div class="principle"><h4>Agents do the week</h4><p>The morning run, the weekly scan, the release check. You read the summary and make the calls. You don't do the looking.</p></div>
+        <div class="principle"><h4>One vault, every tool</h4><p>The context lives in one portable file you own, not in a vendor's memory. Every tool reads it first. You can leave with it.</p></div>
+        <div class="principle"><h4>Evidence or it didn't happen</h4><p>Every change ships with a marker and a before and after. Your agency gets requirements and results, not hunches.</p></div>
+      </div>
+      <div class="note-row">
+        <span class="mono muted">What it isn't</span>
+        <p>It isn't a chatbot bolted onto your dashboard. It isn't replacing your team; it's giving the two people who knew everything a way to write it down and let agents use it. It isn't buying more tools, and most operators end up with fewer. And it isn't a dev project: the first two weeks of the path need no developer at all.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">Terms we use</span></div>
+      <h2 class="h2">The vocabulary.</h2>
+      <p class="lead" style="margin:16px 0 20px">Eight words that come up in every piece. Operators' words, not vendors'.</p>
+      <dl class="gloss">
+        <div><dt>vault</dt><dd>Your plain-text knowledge base about the store. What you sell, what normal looks like, what's been tried, who decides. Every AI tool reads it first.</dd></div>
+        <div><dt>morning run</dt><dd>A scheduled agent that reports what broke overnight, ranked by lost orders, with the fixes most worth your time already drafted.</dd></div>
+        <div><dt>store pulse</dt><dd>A daily read on conversion, speed and errors against last week, by device. Two minutes to read.</dd></div>
+        <div><dt>weekly scan</dt><dd>A scheduled pass over errors and speed that opens issues for the top few. Issue first, then fix.</dd></div>
+        <div><dt>release marker</dt><dd>A timestamp posted to monitoring every time code ships, so you can see what a release changed.</dd></div>
+        <div><dt>skill</dt><dd>A packaged, repeatable job for an agent: a file you install once and run by name. "Run the morning run."</dd></div>
+        <div><dt>agent</dt><dd>An AI that can read your store's data and act on it (open an issue, draft a PR, start a test), on a schedule or when asked.</dd></div>
+        <div><dt>connector</dt><dd>What lets an agent read a system: your monitoring, your platform, your repo. The plumbing. You should never have to think about it after setup.</dd></div>
+      </dl>
+      <div class="cta-row"><a class="btn" href="#five-as">Now the Five A's →</a><a class="btn ghost" href="#assess">Or see where you are</a></div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================ FIVE A'S ============================ -->
+<div class="view" id="view-five-as" hidden>
+  <section class="aisle first">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">The Five A's</span></div>
+      <div class="pagehead">
+        <div>
+          <h1 class="h1">Five things an AI-native operator does every week.</h1>
+          <p class="lead">In order. Each one is a habit, and each one depends on the one before it. The spine for everything in the library.</p>
+        </div>
+        <aside>Most stores live at Ask. The jump that matters is Activate. The one that changes the job is Automate. Anticipate is where you stop hearing about problems from customers.</aside>
+      </div>
+      <div class="five" style="margin-top:36px">
+        <div class="a"><div class="big">Ask</div><p>Put a question to your store in plain English and get the answer from your own data, not a dashboard.</p><div class="eg"><b>e.g.</b> what's broken on checkout right now, ranked by lost orders?</div></div>
+        <div class="a"><div class="big">Analyze</div><p>Go from the answer to the cause. The session, the error, the page, the campaign that sent the traffic.</p><div class="eg"><b>e.g.</b> show me sessions where the cart drawer didn't open.</div></div>
+        <div class="a"><div class="big">Activate</div><p>Ship it. A pull request, a theme change, an A/B test. Finding to live in the same sitting.</p><div class="eg"><b>e.g.</b> open a PR that stops lazy-loading the first row of products.</div></div>
+        <div class="a"><div class="big">Automate</div><p>Schedule it. The morning run, the weekly scan, the release check. Agents do the week, you read the summary.</p><div class="eg"><b>e.g.</b> every Monday at 1am, top two errors, top two speed issues, open the issues.</div></div>
+        <div class="a"><div class="big">Anticipate</div><p>Have the agents watch for what's coming: the drop, the sale, the traffic spike. Hear about it before it costs orders.</p><div class="eg"><b>e.g.</b> before Friday's launch, test the product page on mobile.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">Each one, in detail</span></div>
+      <h2 class="h2">What it looks like, the first move, and the trap.</h2>
+      <div class="adeep" style="margin-top:28px">
+        <div class="row hdr"><div class="cell">Habit</div><div class="cell">What it looks like</div><div class="cell">First move</div><div class="cell">You're there when</div><div class="cell">The trap</div></div>
+        <div class="row">
+          <div class="cell"><div class="big">Ask</div></div>
+          <div class="cell"><span class="lbl">What it looks like</span>"What's broken on checkout, ranked by lost orders?" answered from your sessions, in the tool you already have open.</div>
+          <div class="cell"><span class="lbl">First move</span>Ask three questions a day for a week. Use the prompt library if you're stuck.</div>
+          <div class="cell"><span class="lbl">You're there when</span>You stop opening the dashboard first.</div>
+          <div class="cell"><span class="lbl">The trap</span>Asking for reports instead of decisions. "Show me a chart" is not a question.</div>
+        </div>
+        <div class="row">
+          <div class="cell"><div class="big">Analyze</div></div>
+          <div class="cell"><span class="lbl">What it looks like</span>"Show me sessions where the cart drawer didn't open" and then a replay, then the line of code, then the campaign that sent them.</div>
+          <div class="cell"><span class="lbl">First move</span>Take the top answer from Ask to its root cause once, end to end.</div>
+          <div class="cell"><span class="lbl">You're there when</span>Your tickets contain the cause, not the complaint.</div>
+          <div class="cell"><span class="lbl">The trap</span>Analysis that ends in a slide. If nobody can act on it by Friday, it was a report.</div>
+        </div>
+        <div class="row">
+          <div class="cell"><div class="big">Activate</div></div>
+          <div class="cell"><span class="lbl">What it looks like</span>Finding to live change in one sitting: a PR, a theme edit, an A/B test with a preview and QA.</div>
+          <div class="cell"><span class="lbl">First move</span>Ship one change this week with a release marker and a before and after.</div>
+          <div class="cell"><span class="lbl">You're there when</span>Your agency gets requirements and results, not hunches.</div>
+          <div class="cell"><span class="lbl">The trap</span>Shipping without a marker. You changed something and can't tell what it did.</div>
+        </div>
+        <div class="row">
+          <div class="cell"><div class="big">Automate</div></div>
+          <div class="cell"><span class="lbl">What it looks like</span>The morning run at 6:30. The weekly scan on Monday at 1am opening issues. The release check after every merge.</div>
+          <div class="cell"><span class="lbl">First move</span>Schedule the morning run. Read it for a week before you change anything else.</div>
+          <div class="cell"><span class="lbl">You're there when</span>Your week starts with reading, not looking.</div>
+          <div class="cell"><span class="lbl">The trap</span>Automating before Ask and Analyze are honest. You get the wrong answers, faster, every day.</div>
+        </div>
+        <div class="row">
+          <div class="cell"><div class="big">Anticipate</div></div>
+          <div class="cell"><span class="lbl">What it looks like</span>Before the launch, an agent tests the product page on mobile. During the sale, one watches checkout error rate and tells you if it moves.</div>
+          <div class="cell"><span class="lbl">First move</span>List the next three dates that matter and give each one a watch.</div>
+          <div class="cell"><span class="lbl">You're there when</span>You hear about problems from your agents before you hear from customers.</div>
+          <div class="cell"><span class="lbl">The trap</span>Alert fatigue. Watch for money, not noise.</div>
+        </div>
+      </div>
+      <p class="stage">Where did the Five A's come from? From watching what the operators who got there actually did, in order, and writing it down. It's a description before it's a prescription.</p>
+      <div class="cta-row"><a class="btn" href="#assess">See where you are</a><a class="btn ghost" href="#path">Start the path</a></div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================ ASSESS ============================ -->
+<div class="view" id="view-assess" hidden>
+  <section class="aisle first">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">Where are you?</span></div>
+      <div class="pagehead">
+        <div>
+          <h1 class="h1">Ten questions. Two minutes. No email required.</h1>
+          <p class="lead">Two questions for each of the Five A's. Answer for how your store runs today, not how you'd like it to.</p>
+        </div>
+        <aside>Nothing here is saved or sent anywhere. The result stays on your screen. If you want it kept, take a screenshot.</aside>
+      </div>
+      <form id="quiz" class="quiz" style="margin-top:32px" novalidate>
+        <div class="q"><div><span class="qa">Ask</span><div class="qt">When you want to know what's wrong on the site, you ask in plain English and get an answer from your own data.</div></div><div class="opts"><input type="radio" name="q1" id="q1a" value="0"><label for="q1a">Not yet</label><input type="radio" name="q1" id="q1b" value="1"><label for="q1b">Sometimes</label><input type="radio" name="q1" id="q1c" value="2"><label for="q1c">Every week</label></div></div>
+        <div class="q"><div><span class="qa">Ask</span><div class="qt">Answers come back ranked by what it costs you (orders, revenue), not by count.</div></div><div class="opts"><input type="radio" name="q2" id="q2a" value="0"><label for="q2a">Not yet</label><input type="radio" name="q2" id="q2b" value="1"><label for="q2b">Sometimes</label><input type="radio" name="q2" id="q2c" value="2"><label for="q2c">Every week</label></div></div>
+        <div class="q"><div><span class="qa">Analyze</span><div class="qt">You can get from a symptom to the cause (the session, the error, the page) without a developer.</div></div><div class="opts"><input type="radio" name="q3" id="q3a" value="0"><label for="q3a">Not yet</label><input type="radio" name="q3" id="q3b" value="1"><label for="q3b">Sometimes</label><input type="radio" name="q3" id="q3c" value="2"><label for="q3c">Every week</label></div></div>
+        <div class="q"><div><span class="qa">Analyze</span><div class="qt">Your tickets to developers or your agency state the cause and the fix, not the complaint.</div></div><div class="opts"><input type="radio" name="q4" id="q4a" value="0"><label for="q4a">Not yet</label><input type="radio" name="q4" id="q4b" value="1"><label for="q4b">Sometimes</label><input type="radio" name="q4" id="q4c" value="2"><label for="q4c">Every week</label></div></div>
+        <div class="q"><div><span class="qa">Activate</span><div class="qt">A finding becomes a live change (a PR, a theme change, an A/B test) within a week.</div></div><div class="opts"><input type="radio" name="q5" id="q5a" value="0"><label for="q5a">Not yet</label><input type="radio" name="q5" id="q5b" value="1"><label for="q5b">Sometimes</label><input type="radio" name="q5" id="q5c" value="2"><label for="q5c">Every week</label></div></div>
+        <div class="q"><div><span class="qa">Activate</span><div class="qt">Every change you ship has a before and after you can show.</div></div><div class="opts"><input type="radio" name="q6" id="q6a" value="0"><label for="q6a">Not yet</label><input type="radio" name="q6" id="q6b" value="1"><label for="q6b">Sometimes</label><input type="radio" name="q6" id="q6c" value="2"><label for="q6c">Every week</label></div></div>
+        <div class="q"><div><span class="qa">Automate</span><div class="qt">Something runs on a schedule and tells you what broke overnight.</div></div><div class="opts"><input type="radio" name="q7" id="q7a" value="0"><label for="q7a">Not yet</label><input type="radio" name="q7" id="q7b" value="1"><label for="q7b">Sometimes</label><input type="radio" name="q7" id="q7c" value="2"><label for="q7c">Every week</label></div></div>
+        <div class="q"><div><span class="qa">Automate</span><div class="qt">Your week starts by reading a summary, not by opening a dashboard.</div></div><div class="opts"><input type="radio" name="q8" id="q8a" value="0"><label for="q8a">Not yet</label><input type="radio" name="q8" id="q8b" value="1"><label for="q8b">Sometimes</label><input type="radio" name="q8" id="q8c" value="2"><label for="q8c">Every week</label></div></div>
+        <div class="q"><div><span class="qa">Anticipate</span><div class="qt">Before a launch, a sale or an email send, something checks the pages it will hit.</div></div><div class="opts"><input type="radio" name="q9" id="q9a" value="0"><label for="q9a">Not yet</label><input type="radio" name="q9" id="q9b" value="1"><label for="q9b">Sometimes</label><input type="radio" name="q9" id="q9c" value="2"><label for="q9c">Every week</label></div></div>
+        <div class="q"><div><span class="qa">Anticipate</span><div class="qt">You hear about problems from your agents before you hear from customers.</div></div><div class="opts"><input type="radio" name="q10" id="q10a" value="0"><label for="q10a">Not yet</label><input type="radio" name="q10" id="q10b" value="1"><label for="q10b">Sometimes</label><input type="radio" name="q10" id="q10c" value="2"><label for="q10c">Every week</label></div></div>
+        <div class="cta-row" style="margin-top:8px"><button class="btn" type="submit" id="quizBtn">See where you are</button><button class="btn ghost" type="reset" id="quizReset">Clear</button></div>
+        <p class="fine" id="quizHint" hidden>Answer all ten and try again.</p>
+      </form>
+      <div class="result" id="result" hidden></div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================ PATH ============================ -->
+<div class="view" id="view-path" hidden>
+  <section class="aisle first">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">The Path</span></div>
+      <div class="pagehead">
+        <div>
+          <h1 class="h1">Four weeks to AI-native.</h1>
+          <p class="lead">One hour a day. No developer until week three. Sixteen things to tick off, and this page remembers your ticks on this device.</p>
+        </div>
+        <aside>Do the weeks in order. Week one is the boring one and it's the one that makes the rest work. If you skip the vault, every tool you use starts from zero every time.</aside>
+      </div>
+      <div class="progress" style="margin-top:32px"><span id="progText">0 of 16 done</span><div class="track"><div class="fill" id="progFill"></div></div><button class="btn ghost small" type="button" id="pathReset">Reset</button></div>
+      <div class="weeks">
+        <div class="week">
+          <span class="wk">Week 1 · Vault</span>
+          <h3>Build the vault.</h3>
+          <p class="aim">One file about your store that every AI tool reads first. Aim for two pages, plain text.</p>
+          <div class="task"><input type="checkbox" id="p1"><label for="p1">Copy the vault template and fill in what you sell, platform, markets.<small>30 minutes · the template is on the Vault page</small></label></div>
+          <div class="task"><input type="checkbox" id="p2"><label for="p2">Add "what normal looks like": last four weeks of conversion, AOV, speed, by device.<small>Pull the numbers from wherever you have them. Rough is fine.</small></label></div>
+          <div class="task"><input type="checkbox" id="p3"><label for="p3">Write "don't touch", "tried already" and "who decides".<small>The three sections that stop an agent doing something dumb.</small></label></div>
+          <div class="task"><input type="checkbox" id="p4"><label for="p4">Point every AI tool you use at it. Start each session with "read store.md".<small>Repo root, Claude project, wherever you work.</small></label></div>
+        </div>
+        <div class="week">
+          <span class="wk">Week 2 · Ask and Analyze</span>
+          <h3>Ask the store three things a day.</h3>
+          <p class="aim">Get used to answers coming from your own data, ranked by money.</p>
+          <div class="task"><input type="checkbox" id="p5"><label for="p5">Ask three questions a day from the prompt library, five days running.<small>What's broken, what's slow, what's leaking, by device, by page.</small></label></div>
+          <div class="task"><input type="checkbox" id="p6"><label for="p6">Take one answer all the way to its cause with a session replay.<small>Symptom → sessions → the line, the app or the campaign.</small></label></div>
+          <div class="task"><input type="checkbox" id="p7"><label for="p7">Write that cause into a ticket. The cause, the fix, the sessions it hit. Not the complaint.</label></div>
+          <div class="task"><input type="checkbox" id="p8"><label for="p8">Add a "what I asked" log to the vault. Keep the questions that earned their answer.</label></div>
+        </div>
+        <div class="week">
+          <span class="wk">Week 3 · Activate</span>
+          <h3>Ship one thing with evidence.</h3>
+          <p class="aim">The week you need a developer, or your agency, or the theme editor. One change, properly.</p>
+          <div class="task"><input type="checkbox" id="p9"><label for="p9">Pick one finding from week two with money on it.<small>Not the biggest. The one you can ship this week.</small></label></div>
+          <div class="task"><input type="checkbox" id="p10"><label for="p10">Ship it as a PR, a theme change or an A/B test, with a release marker.</label></div>
+          <div class="task"><input type="checkbox" id="p11"><label for="p11">Record the before and after in the vault under "tried already".</label></div>
+          <div class="task"><input type="checkbox" id="p12"><label for="p12">Tell your agency or developers what you did and why, with the evidence attached.<small>This is the conversation that changes how they bill you.</small></label></div>
+        </div>
+        <div class="week">
+          <span class="wk">Week 4 · Automate and Anticipate</span>
+          <h3>Let the agents do the week.</h3>
+          <p class="aim">Schedule the looking. Keep the deciding.</p>
+          <div class="task"><input type="checkbox" id="p13"><label for="p13">Schedule the morning run for 6:30. Read it before anything else for a week.</label></div>
+          <div class="task"><input type="checkbox" id="p14"><label for="p14">Schedule the weekly scan to open issues for the top two errors and top two speed problems.</label></div>
+          <div class="task"><input type="checkbox" id="p15"><label for="p15">List the next three dates that matter (a drop, a sale, a send) and give each one a watch.</label></div>
+          <div class="task"><input type="checkbox" id="p16"><label for="p16">Read, don't look, for five days. Then take the assessment again.</label></div>
+        </div>
+      </div>
+      <div class="note-row">
+        <span class="mono muted">After week four</span>
+        <p>By our definition, you're an AI-native operator. Take the assessment again and see what moved. Then send us the thing you built that worked best; that's how contributors get found.</p>
+      </div>
+      <div class="cta-row"><a class="btn" href="#vault">Start with the vault →</a><a class="btn ghost" href="#stockroom">What you'll need from the Stockroom</a></div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================ VAULT ============================ -->
+<div class="view" id="view-vault" hidden>
+  <section class="aisle first">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">The one skill</span></div>
+      <div class="pagehead">
+        <div>
+          <h1 class="h1">Build your vault first.</h1>
+          <p class="lead">Your vault is a plain-text knowledge base about your store: what you sell, what normal looks like, what's been tried, who owns what, which tools you run. Every AI tool you touch reads it first.</p>
+        </div>
+        <aside>It's portable and it's yours. It's the difference between an assistant that guesses and one that knows your store. And it's the one thing on this site that is available today, because it's a file, not a product.</aside>
+      </div>
+      <div class="grid2" style="margin-top:36px; align-items:start">
+        <div class="prose">
+          <h2 class="h3">Why a file, and why yours</h2>
+          <p style="margin-top:10px">Every tool you use is building its own memory of your store, and none of them agree. The vault moves that context out of vendors' memories and into one file you control. It lives in your repo or your project folder. It's versioned. You can leave with it.</p>
+          <p>Keep it under two pages. Plain text, no secrets, one owner, updated weekly. The morning run can append to it. The agency can read it. New hires read it on day one and know more than most people learn in a quarter.</p>
+          <h2 class="h3" style="margin-top:24px">How to use it</h2>
+          <p style="margin-top:10px">Put store.md in the root of your theme repo, or in the project folder of whatever AI tool you work in. Start every session with "read store.md before answering anything". When an agent gets something wrong, fix the vault, not the prompt.</p>
+        </div>
+        <div class="vault-file" aria-label="Example vault file">
+          <div class="c"># store.md · read this before answering anything</div>
+          <div class="row"><span class="k">what we sell</span><span>men's apparel, 1,400 SKUs, 60% mobile, 3 markets</span></div>
+          <div class="row"><span class="k">what normal is</span><span>CR 2.1–2.4% weekday, 2.8% on promo days, AOV $142</span></div>
+          <div class="row"><span class="k">platform</span><span>Shopify, theme in GitHub, agency merges, we approve</span></div>
+          <div class="row"><span class="k">don't touch</span><span>checkout extensions, the gift app, anything in /apps</span></div>
+          <div class="row"><span class="k">tried already</span><span>sticky ATC (flat), free-ship bar at $120 (+4% AOV, kept)</span></div>
+          <div class="row"><span class="k">who decides</span><span>Sam: site. Priya: ads. Both: anything over $5k</span></div>
+          <div class="row"><span class="k">tools</span><span>ads, email, analytics, monitoring. One of each, no overlap</span></div>
+          <div class="row"><span class="k">this month</span><span>BFCM. No new apps. Speed and errors only</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">The format</span></div>
+      <h2 class="h2">Nine sections. Each one stops an agent doing something dumb.</h2>
+      <div class="fmt" style="margin-top:28px">
+        <div><b>what we sell</b><p>Category, SKU count, price range, markets, the split between mobile and desktop. One paragraph.</p></div>
+        <div><b>what normal looks like</b><p>Conversion, AOV, speed and error rates for a normal week, by device. So "is this bad?" has an answer.</p></div>
+        <div><b>platform and plumbing</b><p>Platform, where the theme lives, who merges, how a change gets to production.</p></div>
+        <div><b>don't touch</b><p>The checkout extensions, the apps, the templates that break if an agent edits them. Be specific.</p></div>
+        <div><b>tried already</b><p>Every test and fix, with the result. Agents stop proposing the thing you killed in March.</p></div>
+        <div><b>who decides</b><p>Names, not roles. Who approves a PR, who owns ads, who signs anything over a number.</p></div>
+        <div><b>tools</b><p>What you run and what each one is for. Every category once. Overlap is where money and confusion go.</p></div>
+        <div><b>this month</b><p>The one thing that matters right now, and the things that are off the table because of it.</p></div>
+        <div><b>our words</b><p>What you call things. Collections, drops, the names of your customer segments. Agents should use your words.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">The template</span></div>
+      <h2 class="h2">Copy it. Fill it in. Point your tools at it.</h2>
+      <p class="lead" style="margin:16px 0 20px">Plain text. Replace everything in angle brackets. Delete what doesn't apply. Two pages, no more.</p>
+      <div class="tmpl">
+        <div class="bar"><span>store.md · template v1</span><button class="btn ghost small" type="button" id="copyTmpl">Copy template</button></div>
+<pre id="tmplText"># store.md
+# Read this before answering anything about our store.
+# Updated: &lt;date&gt;. Owner: &lt;name&gt;.
+
+## What we sell
+&lt;category, SKU count, price range, markets&gt;. Traffic is &lt;x&gt;% mobile.
+Our customers are &lt;who they are, in a sentence&gt;.
+
+## What normal looks like (last 4 weeks)
+Conversion: &lt;x&gt;% weekday, &lt;y&gt;% on promo days. AOV: &lt;$&gt;.
+Speed: LCP &lt;s&gt; mobile / &lt;s&gt; desktop. Error rate: &lt;x&gt;% of sessions.
+If a number is outside these, say so before anything else.
+
+## Platform and plumbing
+Platform: &lt;Shopify / BigCommerce / other&gt;. Theme lives in &lt;repo&gt;.
+&lt;who&gt; merges. &lt;who&gt; approves. A change reaches production by &lt;how&gt;.
+
+## Don't touch
+- &lt;checkout extensions, named&gt;
+- &lt;apps that break if edited, named&gt;
+- &lt;templates / files that are off limits&gt;
+
+## Tried already
+- &lt;date&gt; &lt;what we changed&gt; → &lt;result, with the number&gt; → &lt;kept / reverted&gt;
+
+## Who decides
+&lt;Name&gt;: site changes. &lt;Name&gt;: ads and email. Both: anything over &lt;$&gt;.
+Agency: &lt;name&gt;, &lt;what they own&gt;, &lt;hours per month&gt;.
+
+## Tools (one per job)
+Ads: &lt;tool&gt;. Email: &lt;tool&gt;. Analytics: &lt;tool&gt;. Monitoring: &lt;tool&gt;. Testing: &lt;tool&gt;.
+
+## This month
+The one thing that matters: &lt;it&gt;.
+Off the table until then: &lt;things&gt;.
+
+## Our words
+&lt;term&gt; = &lt;what it means here&gt;
+&lt;term&gt; = &lt;what it means here&gt;
+
+## What I asked (log)
+- &lt;date&gt; "&lt;question&gt;" → &lt;what came back, one line&gt;</pre>
+      </div>
+      <p class="fine" id="copyNote">The Vaulting 101 playbook (December) walks through filling this in, with examples from three real stores.</p>
+      <div class="cta-row"><a class="btn" href="#path">Back to the path</a><a class="btn ghost" href="#stockroom">More in the Stockroom</a></div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================ STOCKROOM ============================ -->
+<div class="view" id="view-stockroom" hidden>
+  <section class="aisle first">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">The Stockroom</span></div>
+      <div class="pagehead">
+        <div>
+          <h1 class="h1">The library. Take what you need.</h1>
+          <p class="lead">Everything here is free and transportable: install the skill, paste the prompt, watch the clip. Where a tool is named, it's one option among several. The first shelf is being stocked now.</p>
+        </div>
+        <aside>Filter by what it is or by which of the Five A's it moves. Dates are when the piece lands in the weekly drop.</aside>
+      </div>
+      <div class="filters" style="margin-top:28px" role="group" aria-label="Filter by type">
+        <span class="lbl">Type</span>
+        <button class="chip" type="button" data-filter-kind="all" aria-pressed="true">All</button>
+        <button class="chip" type="button" data-filter-kind="playbook" aria-pressed="false">Playbooks</button>
+        <button class="chip" type="button" data-filter-kind="skill" aria-pressed="false">Skills</button>
+        <button class="chip" type="button" data-filter-kind="prompt" aria-pressed="false">Prompts</button>
+        <button class="chip" type="button" data-filter-kind="clip" aria-pressed="false">Clips</button>
+        <button class="chip" type="button" data-filter-kind="top10" aria-pressed="false">Top 10s</button>
+        <button class="chip" type="button" data-filter-kind="report" aria-pressed="false">Reports</button>
+      </div>
+      <div class="filters" role="group" aria-label="Filter by habit">
+        <span class="lbl">Moves</span>
+        <button class="chip" type="button" data-filter-a="all" aria-pressed="true">Any</button>
+        <button class="chip" type="button" data-filter-a="vault" aria-pressed="false">Vault</button>
+        <button class="chip" type="button" data-filter-a="ask" aria-pressed="false">Ask</button>
+        <button class="chip" type="button" data-filter-a="analyze" aria-pressed="false">Analyze</button>
+        <button class="chip" type="button" data-filter-a="activate" aria-pressed="false">Activate</button>
+        <button class="chip" type="button" data-filter-a="automate" aria-pressed="false">Automate</button>
+        <button class="chip" type="button" data-filter-a="anticipate" aria-pressed="false">Anticipate</button>
+      </div>
+      <div class="bins" id="bins">
+        <article class="bin" data-kind="playbook" data-a="vault"><div class="kind"><span>Playbook · Vault</span><span class="when">Available</span></div><h3>The vault template</h3><p>The one file every AI tool you use should read first. Nine sections, two pages, plain text.</p><div class="owner"><span>Contributor: the community</span><a href="#vault">Open →</a></div></article>
+        <article class="bin" data-kind="playbook" data-a="vault"><div class="kind"><span>Playbook · Vault</span><span class="when">December</span></div><h3>Vaulting 101</h3><p>Build the knowledge base your AI reads first. One file, one afternoon, every tool you use gets smarter. With three real examples.</p><div class="owner"><span>Contributor: co-founders</span></div></article>
+        <article class="bin" data-kind="prompt" data-a="ask"><div class="kind"><span>Prompt library · Ask</span><span class="when">December</span></div><h3>Twenty prompts for the operator's week</h3><p>Ask, Analyze and Anticipate prompts that work on your own data. Paste, run, keep the ones that earn it.</p><div class="owner"><span>Contributor: co-founders</span></div></article>
+        <article class="bin" data-kind="skill" data-a="automate"><div class="kind"><span>Skill · Automate</span><span class="when">December</span></div><h3>The morning run</h3><p>What broke overnight, ranked by lost orders, with the two fixes most worth your time already drafted. Install once, runs at 6:30.</p><div class="owner"><span>Contributor: operator seat</span></div></article>
+        <article class="bin" data-kind="top10" data-a="anticipate"><div class="kind"><span>Top 10 · Anticipate</span><span class="when">December</span></div><h3>Ten things operators wish they'd known before Black Friday</h3><p>What broke, what held, and what they're changing before next year. Companion to the first session.</p><div class="owner"><span>Contributor: the December panel</span></div></article>
+        <article class="bin" data-kind="skill" data-a="automate"><div class="kind"><span>Skill · Automate</span><span class="when">January</span></div><h3>The weekly scan</h3><p>Monday at 1am: top two errors, top two speed issues, issues opened in your repo with the cause and the fix. Issue first, then PR.</p><div class="owner"><span>Contributor: operator seat</span></div></article>
+        <article class="bin" data-kind="skill" data-a="automate"><div class="kind"><span>Skill · Automate</span><span class="when">January</span></div><h3>Store pulse</h3><p>A daily read on conversion, speed and errors against last week, by device, in the time it takes to make coffee.</p><div class="owner"><span>Contributor: operator seat</span></div></article>
+        <article class="bin" data-kind="playbook" data-a="activate"><div class="kind"><span>Playbook · Activate</span><span class="when">January</span></div><h3>Finding to shipping in one week</h3><p>One bug, one speed fix, one A/B test, from the data to a live change with a marker. The worked example for Activate.</p><div class="owner"><span>Contributor: operator seat</span></div></article>
+        <article class="bin" data-kind="playbook" data-a="activate"><div class="kind"><span>Playbook · Activate</span><span class="when">January</span></div><h3>Before and after, honestly</h3><p>How to measure a change without fooling yourself: release markers, the right window, by device, and what "flat" means.</p><div class="owner"><span>Contributor: co-founders</span></div></article>
+        <article class="bin" data-kind="playbook" data-a="activate"><div class="kind"><span>Playbook · Activate</span><span class="when">January</span></div><h3>Your agency in the AI era</h3><p>Who holds GitHub, who merges, who gets paid for what. The conversation to have before an agent opens its first PR.</p><div class="owner"><span>Contributor: agency seat</span></div></article>
+        <article class="bin" data-kind="clip" data-a="activate"><div class="kind"><span>Clip · 5 min · Activate</span><span class="when">January</span></div><h3>A hundred release markers a fortnight</h3><p>How one retailer's developers post every merge to monitoring automatically, and what "did this morning's release break anything" looks like with evidence.</p><div class="owner"><span>Contributor: to be confirmed</span></div></article>
+        <article class="bin" data-kind="clip" data-a="automate"><div class="kind"><span>Clip · 5 min · Automate</span><span class="when">January</span></div><h3>The Monday 1am scan, end to end</h3><p>Setting the schedule, picking the top four, opening the issues, and what the developer sees on Monday morning.</p><div class="owner"><span>Contributor: to be confirmed</span></div></article>
+        <article class="bin" data-kind="playbook" data-a="anticipate"><div class="kind"><span>Playbook · Anticipate</span><span class="when">January</span></div><h3>Pre-launch checklist for a drop or a sale</h3><p>The pages the traffic will hit, the five things to test on mobile, and the one watch to set for the day.</p><div class="owner"><span>Contributor: operator seat</span></div></article>
+        <article class="bin" data-kind="top10" data-a="automate"><div class="kind"><span>Top 10 · Automate</span><span class="when">January</span></div><h3>The skills operators actually run every week</h3><p>By platform, with install links and who runs them. Every tool on the list is one option among several.</p><div class="owner"><span>Contributor: the community</span></div></article>
+        <article class="bin" data-kind="prompt" data-a="analyze"><div class="kind"><span>Prompt library · Analyze</span><span class="when">January</span></div><h3>From symptom to cause in five prompts</h3><p>The sequence that gets from "checkout feels slow" to the script, the session and the ticket.</p><div class="owner"><span>Contributor: operator seat</span></div></article>
+        <article class="bin" data-kind="report" data-a="ask"><div class="kind"><span>Report · annual</span><span class="when">Q1 2027</span></div><h3>The State of the AI-native Store</h3><p>What hundreds of stores actually run with agents, by platform and by size: which habits stuck, what shipped, what it moved. The benchmark nobody else can publish.</p><div class="owner"><span>Contributor: the community, with the founding sponsor's data</span></div></article>
+      </div>
+      <div class="empty" id="binsEmpty" hidden>Nothing on this shelf yet. Try another filter, or send us one.</div>
+      <div class="note-row">
+        <span class="mono muted">Stocking rules</span>
+        <p>Everything is free. Everything leaves with you: a file, a prompt, a video. A contributor's name goes on their piece. Where a tool is named, it's one option among several, and the piece has to work with at least one other. Nothing on the shelf is a pitch.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================ IN PRODUCTION ============================ -->
+<div class="view" id="view-production" hidden>
+  <section class="aisle first">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">In production</span></div>
+      <div class="pagehead">
+        <div>
+          <h1 class="h1">What operators' agents are already doing.</h1>
+          <p class="lead">Not demos. Things running on real stores this week. The shape of every story is the same: what the agent does, what the human does, and one number that proves it.</p>
+        </div>
+        <aside>Stores are described, not named, until the operator says yes. Names, numbers and the clips land in the December drop, with permission.</aside>
+      </div>
+      <div class="prod" style="margin-top:32px">
+        <article class="story">
+          <div class="meta"><span>Cycling retailer · UK</span><span>Activate · Automate</span></div>
+          <h3>A hundred release markers a fortnight</h3>
+          <p>For years the monitoring was a dashboard that two people knew how to read. Then the developers started living in Claude Code and GitHub, and the monitoring moved in with them. Every merge posts a release marker automatically. After a big change the agent keeps watching and comes back if something new appears. When a customer rings to say the site wouldn't let them pay, they read out a short code and the team is watching their session.</p>
+          <p>The best example never threw an error: a wrong currency on a price, page looked perfect. A label search found every customer it hit. That's the shift from "did it error" to "was it right".</p>
+          <div class="fact"><b>100+</b> release markers in a fortnight, zero typed by hand</div>
+        </article>
+        <article class="story">
+          <div class="meta"><span>Menswear brand · US</span><span>Automate</span></div>
+          <h3>Monday, 1am: the scan</h3>
+          <p>A scheduled run picks the top two errors and the top two speed issues and opens them as issues in GitHub, each with the cause and the fix, before anyone is awake. The rule is issue first, then PR: nothing ships without a ticket to trace it to, and the tickets group into patterns over months.</p>
+          <p>The operator builds his own agents on top of the store's data rather than using anyone's off the shelf. The scan was the first one. The event tracking came next.</p>
+          <div class="fact"><b>4</b> issues waiting every Monday morning, cause and fix attached</div>
+        </article>
+        <article class="story">
+          <div class="meta"><span>DIY retailer · Canada</span><span>Anticipate</span></div>
+          <h3>Black Friday with a team of four</h3>
+          <p>Going into the weekend, the team's fear was the usual one: something breaks at 2am on the busiest night of the year and nobody knows until the refund requests start. So the agents watched checkout and the head of ecommerce read the morning run from his phone. The team spent the weekend deciding, not looking.</p>
+          <div class="fact"><b>BFCM</b> run by four people and the agents, and a weekend that was boring in the right way</div>
+        </article>
+        <article class="story">
+          <div class="meta"><span>Apparel · multi-brand</span><span>Ask · Activate</span></div>
+          <h3>Finding to shipping in one sitting</h3>
+          <p>"Which products get views and no sales this month?" came back with a list. One product, one hypothesis, one A/B test built by dragging the change onto the theme, a preview, a QA pass, and live by the end of the afternoon. The agency found out on Monday, with the before and after attached, and the conversation about what they'd work on next was a different conversation.</p>
+          <div class="fact"><b>1 afternoon</b> from question to live test</div>
+        </article>
+      </div>
+      <div class="note-row">
+        <span class="mono muted">Send us yours</span>
+        <p>Running something on a real store that works? Three sentences and one number is enough to start. That's how seats get filled.</p>
+      </div>
+      <div class="cta-row"><a class="btn" href="#contributors">How contributing works →</a></div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================ CONTRIBUTORS ============================ -->
+<div class="view" id="view-contributors" hidden>
+  <section class="aisle first">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">Contributors</span></div>
+      <div class="pagehead">
+        <div>
+          <h1 class="h1">Seven seats. People who make things.</h1>
+          <p class="lead">Contributors run real stores, or build for the people who do, and put one thing a quarter in the library. Their names go on what they make. Logos don't get seats.</p>
+        </div>
+        <aside>Founding contributors are being invited now. Names go up as people say yes. The seventh seat is open.</aside>
+      </div>
+      <div class="seats" style="margin-top:32px">
+        <div class="seat open">
+          <span class="role"><span>Operator seat</span><span class="chipstat">Invitations out</span></span>
+          <span class="name">Announced in December</span>
+          <span class="co">Cycling retailer, UK</span>
+          <span class="desc">Wrote his own playbook and skills pack. His developers live in Claude Code and GitHub, and the monitoring lives there with them.</span>
+        </div>
+        <div class="seat open">
+          <span class="role"><span>Operator seat</span><span class="chipstat">Invitations out</span></span>
+          <span class="name">Announced in December</span>
+          <span class="co">Menswear brand, US</span>
+          <span class="desc">Builds his own agents on top of the store's data. Runs the Monday 1am scan. Issue first, then PR.</span>
+        </div>
+        <div class="seat open">
+          <span class="role"><span>Operator seat</span><span class="chipstat">Invitations out</span></span>
+          <span class="name">Announced in December</span>
+          <span class="co">Two consumer brands, Canada and US</span>
+          <span class="desc">The daily hands. Runs two stores through the morning run and brought the second one on himself.</span>
+        </div>
+        <div class="seat open">
+          <span class="role"><span>Enterprise seat</span><span class="chipstat">Invitations out</span></span>
+          <span class="name">Announced in December</span>
+          <span class="co">National retailer, US</span>
+          <span class="desc">The enterprise seat. Day to day on one of the biggest retail sites in the US.</span>
+        </div>
+        <div class="seat">
+          <span class="role"><span>Co-founder</span><span class="chipstat ink">Operator</span></span>
+          <span class="name">David Levin</span>
+          <span class="co">W. Kleinberg</span>
+          <span class="desc">Runs ecommerce at W. Kleinberg and operating partner to other brands. Wrote the Five A's and the library structure.</span>
+        </div>
+        <div class="seat">
+          <span class="role"><span>Co-founder</span><span class="chipstat ink">Host</span></span>
+          <span class="name">Kailin Noivo</span>
+          <span class="co">President, Noibu</span>
+          <span class="desc">Hosts the sessions and the podcast, and makes the first calls. Day job: President, Noibu, the founding sponsor.</span>
+        </div>
+        <div class="seat open">
+          <span class="role"><span>Agency / consultant seat</span><span class="chipstat">Open</span></span>
+          <span class="name">Open</span>
+          <span class="co">Someone who ships for merchants</span>
+          <span class="desc">And has rethought how they bill now that an agent can open the first PR.</span>
+        </div>
+      </div>
+      <div class="rules">
+        <p><b>What a seat is</b>Your name on what you make, a say in what gets published, first look at everything in the library, and a seat on a session panel when you want one.</p>
+        <p><b>What it costs</b>One piece a quarter: a skill, a clip, a top-10 or a playbook. We help you make it. A couple of hours, four times a year.</p>
+        <p><b>What it isn't</b>Not a sales reference. Contributors speak for themselves, aren't asked to recommend anything, and can leave whenever they like.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">Want a seat?</span></div>
+      <h2 class="h2">Send one thing you've built.</h2>
+      <p class="lead" style="margin-top:16px">A skill, a prompt that earns its keep, a workflow with a number behind it. Three sentences is enough to start.</p>
+      <form class="contrib" id="contribForm" novalidate>
+        <label for="cName" class="mono muted">Your name</label>
+        <input type="text" id="cName" name="name" autocomplete="name" placeholder="Name">
+        <label for="cStore" class="mono muted">The store you run (or build for)</label>
+        <input type="text" id="cStore" name="store" placeholder="store.com">
+        <label for="cEmail" class="mono muted">Email</label>
+        <input type="email" id="cEmail" name="email" autocomplete="email" placeholder="you@yourstore.com">
+        <label for="cWhat" class="mono muted">What you built, and the number behind it</label>
+        <textarea id="cWhat" name="what" placeholder="e.g. A scheduled scan that opens four issues every Monday. Dev time on triage went from a day to an hour."></textarea>
+        <div class="cta-row" style="margin-top:4px"><button class="btn" type="submit">Send it</button></div>
+      </form>
+      <div class="thanks" id="contribThanks" hidden>Your email app should have opened with your note ready to send. If it didn't, email kailin@noibu.com with "Contributor seat" in the subject. A co-founder replies within a week.</div>
+      <p class="fine">We read everything. We publish what works at more than one store.</p>
+    </div>
+  </section>
+</div>
+
+<!-- ============================ SESSIONS ============================ -->
+<div class="view" id="view-sessions" hidden>
+  <section class="aisle first">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">Sessions</span></div>
+      <div class="pagehead">
+        <div>
+          <h1 class="h1">Forty-five minutes. One topic. Operators on the panel.</h1>
+          <p class="lead">Online, monthly from January, recorded and cut into clips for the Stockroom. No vendor slides. If we ever meet in person it'll be a dinner, not a conference.</p>
+        </div>
+        <aside>The first session is the Black Friday retro. Everything after it comes from what the assessment says people are stuck on.</aside>
+      </div>
+      <div style="margin-top:28px">
+        <div class="sess">
+          <div class="date"><b>Dec</b>date in the first drop</div>
+          <div><h3>What you wish you had known before Black Friday</h3><p>Three operators, what broke, what held, and what they're changing before next year. The top-10 lands the same week.</p></div>
+          <div class="act"><a class="btn small" href="#join">Save a seat</a></div>
+        </div>
+        <div class="sess">
+          <div class="date"><b>Jan</b>monthly from here</div>
+          <div><h3>Vaulting, live</h3><p>Build a vault for a real store on the call, from a blank file to "read store.md" in forty-five minutes. Bring yours.</p></div>
+          <div class="act"><span class="chipstat">Planned</span></div>
+        </div>
+        <div class="sess">
+          <div class="date"><b>Feb</b></div>
+          <div><h3>Finding to shipping, on camera</h3><p>One operator, one finding, one change, live, with the before and after a week later in the drop.</p></div>
+          <div class="act"><span class="chipstat">Planned</span></div>
+        </div>
+        <div class="sess">
+          <div class="date"><b>Mar</b></div>
+          <div><h3>Your agency in the AI era</h3><p>An operator and the agency they work with, in the same room, on who holds GitHub, who merges, and how the bill changed.</p></div>
+          <div class="act"><span class="chipstat">Planned</span></div>
+        </div>
+      </div>
+      <div class="note-row">
+        <span class="mono muted">The podcast</span>
+        <p>Operator episodes from the host's podcast land here too: the long version of the stories in production, with the person who did it. Short clips go to the Stockroom.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================ ABOUT ============================ -->
+<div class="view" id="view-about" hidden>
+  <section class="aisle first">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">About</span></div>
+      <div class="pagehead">
+        <div>
+          <h1 class="h1">How this is run.</h1>
+          <p class="lead">A community program with a practitioner council. Small on purpose. Here's the model, the rules, and the money.</p>
+        </div>
+        <aside>We looked hard at the alliances that came before this one. The ones that worked educated a market. The ones that went wrong grew a payroll. We're building the first kind.</aside>
+      </div>
+      <div class="grid2" style="margin-top:36px; align-items:start">
+        <div class="prose">
+          <h2 class="h3">The model</h2>
+          <p style="margin-top:10px">Two co-founders and seven contributors. One piece a week in the library, one session a month, a podcast that was already running. Contributors are named on what they make and have a say in what gets published. There's no legal entity, no board, no membership tiers and no certification. If that ever needs to change, it'll be because the people here asked for it. The model isn't ours; <a href="#precedents">six other professions got their name the same way</a>.</p>
+          <h2 class="h3" style="margin-top:24px">The money</h2>
+          <p style="margin-top:10px">Noibu is the founding sponsor. It pays for the site, the production and the co-founders' time so that everything here can be free. It gets its name in the footer and nothing on the shelf. No paid placements, no sponsored pieces, no logos on stage. Where a Noibu tool appears in a piece it's one option among several, and the piece has to work with at least one other.</p>
+        </div>
+        <div>
+          <h2 class="h3">The rules</h2>
+          <ul style="margin-top:10px">
+            <li class="shift-li" style="padding:10px 0;border-top:1px dashed var(--line)">Operators first. If it isn't useful to someone running a store this week, it doesn't go up.</li>
+            <li style="padding:10px 0;border-top:1px dashed var(--line)">Everything leaves with you. A file, a prompt, a video. Nothing lives behind a login.</li>
+            <li style="padding:10px 0;border-top:1px dashed var(--line)">Names on work. Contributors speak for themselves and are never asked to recommend anything.</li>
+            <li style="padding:10px 0;border-top:1px dashed var(--line)">One option among several. Any tool named has to be replaceable in the piece.</li>
+            <li style="padding:10px 0;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line)">If it stops being useful, it stops. We review at ninety days and say so either way.</li>
+          </ul>
+          <h2 class="h3" style="margin-top:24px">Contact</h2>
+          <p class="muted" style="margin-top:10px">Reply to any weekly drop and a co-founder reads it. For anything else, the contributor form works for humans too.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================ JOIN ============================ -->
+<div class="view" id="view-join" hidden>
+  <section class="aisle first">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">The weekly drop</span></div>
+      <div class="pagehead">
+        <div>
+          <h1 class="h1">One email a week. Starting December.</h1>
+          <p class="lead">The new piece, who made it, and the one thing to try this week. That's it. The December session invite comes the same way.</p>
+        </div>
+        <aside>One email a week. No selling your address, no sales follow-up, unsubscribe in one click.</aside>
+      </div>
+      <form class="join" id="joinForm" novalidate>
+        <label for="email" style="position:absolute;left:-9999px">Email address</label>
+        <input type="email" id="email" name="email" placeholder="you@yourstore.com" autocomplete="email" required>
+        <button class="btn" type="submit" id="joinBtn">Join the weekly drop</button>
+      </form>
+      <div class="thanks" id="thanks" hidden>Your email app should have opened with the note ready to send. If it didn't, email kailin@noibu.com with "Weekly drop" in the subject and you're on the list.</div>
+      <div class="note-row">
+        <span class="mono muted">While you wait</span>
+        <p>Start the <a href="#path">path</a>. Week one needs nothing from us: the <a href="#vault">vault template</a> is already on the shelf.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================ PRECEDENTS ============================ -->
+<div class="view" id="view-precedents" hidden>
+  <section class="aisle first">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">Why this works</span></div>
+      <div class="pagehead">
+        <div>
+          <h1 class="h1">Others did it first. Here's what we're taking.</h1>
+          <p class="lead">Every profession that got a name got it from a community that named it. We studied the ones that worked, in other industries, and borrowed the parts that fit a group of operators with no budget for an org chart.</p>
+        </div>
+        <aside>Figures are as the sources state them; the sources are linked on each card. None of these were quick. The fastest took three years to feel real.</aside>
+      </div>
+      <div class="prod" style="margin-top:32px">
+        <article class="story">
+          <div class="meta"><span>Customer success · Gainsight · 2013</span><span>Name the person</span></div>
+          <h3>From 300 people to a profession</h3>
+          <p>When Gainsight started there were "no tools, no job titles, no conferences" and about a thousand customer success managers in the world; a decade later there were about 300,000. The first Pulse was 300 people in a room. By 2019 it was 5,500. Nick Mehta's line: "we didn't 'build' anything. We identified some seeds and tried to nurture them."</p>
+          <div class="fact"><b>Taking:</b> name the person, not the product. The host shows up for years. <a href="https://www.gainsight.com/blog/pulse-is-a-community-not-a-conference/">Source</a> · <a href="https://www.villageglobal.com/insights/nick-mehta-category-creation-last-resort">Source</a></div>
+        </article>
+        <article class="story">
+          <div class="meta"><span>Analytics engineer · dbt · 2016</span><span>Free artifact, silent vendor</span></div>
+          <h3>A Slack before the company existed</h3>
+          <p>The community started three months after the first commit and a month before the company. It doubled every year. The term "analytics engineer" was coined with friends and written down in 2019. The company ran a vendor-neutral newsletter, didn't promote its product in its own spaces, and its rule was "recognize, rather than incentivize." It reports that 80% of its inbound now comes from the community.</p>
+          <div class="fact"><b>Taking:</b> a free, portable artifact at the centre. The vendor stays out of the room. <a href="https://community.inc/deep-dives/community-growth-dbt-labs">Source</a> · <a href="https://www.getdbt.com/blog/what-is-analytics-engineering">Source</a></div>
+        </article>
+        <article class="story">
+          <div class="meta"><span>Trailblazers · Salesforce · 2006</span><span>Careers</span></div>
+          <h3>An identity people put on their résumé</h3>
+          <p>It began with one person teaching admin classes and a customer volunteering to run the first local group. Today it's millions of members and 650+ local meetings across 70 countries. The number that matters: three in five members say the community helped them land a job or a promotion.</p>
+          <div class="fact"><b>Taking:</b> the identity has to be useful to a career, without a certificate. <a href="https://www.salesforce.com/blog/trailblazer-community-20th-anniversary/">Source</a></div>
+        </article>
+        <article class="story">
+          <div class="meta"><span>AI engineer · Latent Space · 2023</span><span>Essay, then a small room</span></div>
+          <h3>One essay, one sold-out room of 500</h3>
+          <p>A newsletter in 2022, an essay in June 2023 that named the role, and a first summit that October: 500 engineers, ten applicants per seat, a thousand pre-registrations in a day. The big event came the year after. Talks free online.</p>
+          <div class="fact"><b>Taking:</b> write the essay first. Make the first session small and selective. <a href="https://www.ai.engineer/about">Source</a></div>
+        </article>
+        <article class="story">
+          <div class="meta"><span>eCommerceFuel · 2012</span><span>No vendors</span></div>
+          <h3>The operator community that already works in ecommerce</h3>
+          <p>You must own part of a store doing $1M+. "No vendors, no beginners." A thousand members in 39 countries, 50,000 searchable discussions, a live event of 300 operators and a weekly podcast since 2013. The founder started with blog posts and "realized the real value was connecting serious operators with each other."</p>
+          <div class="fact"><b>Taking:</b> the credibility bar. Operators in the room; the sponsor in the footer. <a href="https://www.ecommercefuel.com/about/">Source</a></div>
+        </article>
+        <article class="story">
+          <div class="meta"><span>MACH Alliance · 2020</span><span>Education, not apparatus</span></div>
+          <h3>What a vendor alliance costs</h3>
+          <p>Four companies founded it in June 2020 to teach the market a new architecture, and it worked: 111 members and 50 ambassadors by 2025. It also took a non-profit, an independent board, a managing director, certification and a flagship conference to get there, and five years. A 2021 review said enterprises still found it "an uncertain multi-vendor play."</p>
+          <div class="fact"><b>Taking:</b> the education. Leaving: the apparatus. Our members are operators, not vendors paying dues. <a href="https://en.wikipedia.org/wiki/MACH_Alliance">Source</a> · <a href="https://www.boye-co.com/blog/2021/10/11/whats-the-mach-alliance-all-about">Source</a></div>
+        </article>
+      </div>
+    </div>
+  </section>
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">The pattern</span></div>
+      <h2 class="h2">Eight things every one of them did.</h2>
+      <div class="grid4" style="margin-top:28px">
+        <div class="principle"><h4>Named a person</h4><p>Customer success manager, analytics engineer, AI engineer, Trailblazer. Not a product category. A job someone could be.</p></div>
+        <div class="principle"><h4>Wrote the text</h4><p>A book, an essay, a post called "What is…". One canonical piece people could send each other.</p></div>
+        <div class="principle"><h4>Had distribution first</h4><p>A newsletter, a Slack, dinners, a blog. The audience existed before the name did.</p></div>
+        <div class="principle"><h4>Kept the core free</h4><p>Open source, free training, a free forum. The artifact at the centre was never gated.</p></div>
+        <div class="principle"><h4>Kept the vendor quiet</h4><p>Peers in the room. The company that paid for it stayed out of the conversation, or out of the building.</p></div>
+        <div class="principle"><h4>Started small</h4><p>300, 500, a few hundred. Sold out beats big. The big room came three or four years later.</p></div>
+        <div class="principle"><h4>Recognized, didn't pay</h4><p>Names on work, a seat, a title. Not stipends.</p></div>
+        <div class="principle"><h4>Took years</h4><p>Three years to a thousand people is the fast case. We review at ninety days and judge at a year.</p></div>
+      </div>
+      <div class="cta-row"><a class="btn" href="#explained">Read the text →</a><a class="btn ghost" href="#partners">How partners fit</a></div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================ PARTNERS ============================ -->
+<div class="view" id="view-partners" hidden>
+  <section class="aisle first">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">Partners</span></div>
+      <div class="pagehead">
+        <div>
+          <h1 class="h1">Agencies and platforms. On the method, not on the money.</h1>
+          <p class="lead">Operators don't run stores alone. The agencies that ship for them and the platforms they run on are part of how a store becomes AI-native, so they're part of this. One rule covers both: you take part by practising the method, not by paying for a logo.</p>
+        </div>
+        <aside>There are no sponsorship packages, no reseller tiers and no referral fees here. If a partner has a commercial deal with any vendor, that's between them and the vendor and it stays off this site.</aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">For agencies</span></div>
+      <div class="grid2" style="align-items:start">
+        <div class="prose">
+          <h2 class="h2">The AI-native agency.</h2>
+          <p style="margin-top:16px">The agencies that will do well in the next five years are the ones whose clients run their stores with agents and still need them: for judgment, for the hard builds, for the things an agent shouldn't touch. The ones that will struggle are billing hours for work an agent now does in the morning run. We want the first kind in the room, and we'll say so publicly.</p>
+          <p>An agency qualifies by practice. If you work this way on at least one client store, you can hold a contributor seat, co-author the agency playbook, sit on the March session, and be listed here once there are five of you.</p>
+        </div>
+        <div>
+          <h3 class="h3">Five principles of an AI-native agency</h3>
+          <ul style="margin-top:10px">
+            <li style="padding:10px 0;border-top:1px dashed var(--line)"><b>An agent opens the first PR.</b> Findings become pull requests before they become tickets. People review; they don't transcribe.</li>
+            <li style="padding:10px 0;border-top:1px dashed var(--line)"><b>Every change ships with a before and after.</b> A release marker and a number. The client never has to ask "did it work?"</li>
+            <li style="padding:10px 0;border-top:1px dashed var(--line)"><b>The client owns the vault and the repo.</b> The context file and the code live with the store, not with the agency. The client can leave with both.</li>
+            <li style="padding:10px 0;border-top:1px dashed var(--line)"><b>Bill for outcomes, not for looking.</b> Retainers, outcomes, fixed scopes. Not hours spent in a dashboard an agent reads for free.</li>
+            <li style="padding:10px 0;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line)"><b>Teach the client to Ask.</b> The goal is a client who can ask the store a question. An agency that keeps that for itself isn't AI-native; it's gatekeeping.</li>
+          </ul>
+          <div class="cta-row"><a class="btn" href="#contributors">Apply for the agency seat</a></div>
+        </div>
+      </div>
+      <div class="note-row">
+        <span class="mono muted">What it isn't</span>
+        <p>Not a certification, not a directory you pay to be in, not a referral scheme. Signing the principles is free and self-attested. The listing comes from doing the work on a real store and putting a piece in the library.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="aisle">
+    <div class="wrap">
+      <div class="shelf"><span class="tape">For platforms</span></div>
+      <div class="grid2" style="align-items:start">
+        <div class="prose">
+          <h2 class="h2">Shopify, Commerce, Klaviyo and the rest.</h2>
+          <p style="margin-top:16px">Platforms want their merchants to be AI-native as much as we do. They're also where operators actually live. So platforms get the two things that help their merchants, and none of the things that turn a community into a trade show.</p>
+          <p>The first platform session is being set up for the new year.</p>
+        </div>
+        <div>
+          <h3 class="h3">What a platform gets</h3>
+          <ul style="margin-top:10px">
+            <li style="padding:10px 0;border-top:1px dashed var(--line)">A co-hosted session, with operators on their platform on the panel and their own team in the room.</li>
+            <li style="padding:10px 0;border-top:1px dashed var(--line)">Platform-specific skills and playbooks in the Stockroom: theme-preview A/B tests, flow agents, the pre-launch checklist for their checkout.</li>
+            <li style="padding:10px 0;border-top:1px dashed var(--line)">Their cut of the annual State of the AI-native Store report, by platform, to share with merchants.</li>
+            <li style="padding:10px 0;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line)">The weekly drop, for their partner managers to forward.</li>
+          </ul>
+          <h3 class="h3" style="margin-top:22px">What a platform doesn't get</h3>
+          <p class="muted" style="margin-top:8px">Sponsorship, a logo on the site, a seat, or a say in what gets published. Tools that compete with each other can both be in the Stockroom. Their customers can hold seats. The companies can't.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="wordmark" style="margin-bottom:10px">AI Native Operators</div>
+      <p>A community program for people who run ecommerce sites and want to run them with AI. Founding sponsor: Noibu. Contributors speak for themselves.</p>
+      <p class="mono" style="margin-top:12px">© 2026 · ainativeoperators.org</p>
+    </div>
+    <div><h4>Learn</h4><ul><li><a href="#explained">AI-native, explained</a></li><li><a href="#five-as">The Five A's</a></li><li><a href="#assess">Where are you?</a></li><li><a href="#path">The Path</a></li><li><a href="#vault">The Vault</a></li></ul></div>
+    <div><h4>Take</h4><ul><li><a href="#stockroom">The Stockroom</a></li><li><a href="#production">In production</a></li><li><a href="#sessions">Sessions</a></li></ul></div>
+    <div><h4>People</h4><ul><li><a href="#contributors">Contributors</a></li><li><a href="#partners">Partners</a></li><li><a href="#precedents">Why this works</a></li><li><a href="#about">How this is run</a></li><li><a href="#join">Join the weekly drop</a></li></ul></div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    // ---------- Routing on the hash ----------
+    var views = document.querySelectorAll('.view');
+    var navLinks = document.querySelectorAll('[data-nav]');
+    var siteNav = document.getElementById('siteNav');
+    var menuBtn = document.getElementById('menuBtn');
+    function closeMenu() { siteNav.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); }
+    function route() {
+      var h = (location.hash || '#home').replace('#', '');
+      if (!document.getElementById('view-' + h)) h = 'home';
+      views.forEach(function (v) { v.hidden = (v.id !== 'view-' + h); });
+      navLinks.forEach(function (a) { a.setAttribute('aria-current', a.getAttribute('data-nav') === h ? 'page' : 'false'); });
+      closeMenu();
+      window.scrollTo(0, 0);
+    }
+    window.addEventListener('hashchange', route);
+    route();
+    menuBtn.addEventListener('click', function () {
+      var open = siteNav.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+
+    // ---------- Stockroom filters ----------
+    var kind = 'all', a = 'all';
+    var bins = document.querySelectorAll('#bins .bin');
+    var empty = document.getElementById('binsEmpty');
+    function applyFilters() {
+      var shown = 0;
+      bins.forEach(function (b) {
+        var ok = (kind === 'all' || b.getAttribute('data-kind') === kind) && (a === 'all' || b.getAttribute('data-a') === a);
+        b.hidden = !ok; if (ok) shown++;
+      });
+      empty.hidden = shown > 0;
+    }
+    document.querySelectorAll('[data-filter-kind]').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        kind = chip.getAttribute('data-filter-kind');
+        document.querySelectorAll('[data-filter-kind]').forEach(function (c) { c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'); });
+        applyFilters();
+      });
+    });
+    document.querySelectorAll('[data-filter-a]').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        a = chip.getAttribute('data-filter-a');
+        document.querySelectorAll('[data-filter-a]').forEach(function (c) { c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'); });
+        applyFilters();
+      });
+    });
+
+    // ---------- Assessment ----------
+    var quiz = document.getElementById('quiz');
+    var result = document.getElementById('result');
+    var hint = document.getElementById('quizHint');
+    var AS = ['Ask', 'Analyze', 'Activate', 'Automate', 'Anticipate'];
+    var MOVES = {
+      'Ask': ['Ask the store three questions a day for a week. Use the prompt library if you need a start.', 'Make every answer come back ranked by money: orders, revenue, lost sessions. Not counts.', 'Stop opening the dashboard first. Open the question first.'],
+      'Analyze': ['Take the top answer from Ask to its root cause once, end to end, with a session replay.', 'Rewrite your next ticket so it states the cause and the fix, not the complaint.', 'Keep a "what I asked" log in the vault. The questions that earned their answer are your library.'],
+      'Activate': ['Pick one finding with money on it and ship it this week: a PR, a theme change or an A/B test.', 'Post a release marker with it, and write the before and after into the vault.', 'Tell your agency or developers what you did and why, with the evidence attached.'],
+      'Automate': ['Schedule the morning run for 6:30 and read it before anything else for five days.', 'Schedule the weekly scan to open issues for the top two errors and top two speed problems.', 'Measure your week by what you read, not by what you looked at.'],
+      'Anticipate': ['List the next three dates that matter (a drop, a sale, a send) and give each one a watch.', 'Before the next launch, have an agent test the pages the traffic will hit, on mobile.', 'Set one watch for money (checkout error rate during the sale) and none for noise.']
+    };
+    var LIB = { 'Ask': 'Twenty prompts for the operator\'s week', 'Analyze': 'From symptom to cause in five prompts', 'Activate': 'Finding to shipping in one week', 'Automate': 'The morning run', 'Anticipate': 'Pre-launch checklist for a drop or a sale' };
+    var WEEK = { 'Ask': 2, 'Analyze': 2, 'Activate': 3, 'Automate': 4, 'Anticipate': 4 };
+    quiz.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var scores = [0, 0, 0, 0, 0], answered = 0;
+      for (var i = 1; i <= 10; i++) {
+        var sel = quiz.querySelector('input[name="q' + i + '"]:checked');
+        if (sel) { answered++; scores[Math.floor((i - 1) / 2)] += parseInt(sel.value, 10); }
+      }
+      if (answered < 10) { hint.hidden = false; return; }
+      hint.hidden = true;
+      var total = scores.reduce(function (s, x) { return s + x; }, 0);
+      var focus = null;
+      for (var j = 0; j < 5; j++) { if (scores[j] < 3) { focus = AS[j]; break; } }
+      var vaultFirst = total <= 6;
+      var html = '';
+      if (!focus) {
+        html += '<span class="mono muted">Your stage</span><div class="stageword">Anticipate. You\'re already running the store this way.</div>';
+        html += '<p style="margin-top:10px;max-width:60ch">Scores like this are the kind we build seats for. Send us one thing you\'ve built and we\'ll take it from there.</p>';
+      } else {
+        html += '<span class="mono muted">Your stage</span><div class="stageword">You\'re working on ' + focus + '.</div>';
+        html += '<p style="margin-top:10px;max-width:60ch">' + (vaultFirst ? 'Build the vault before anything else; at this stage every tool you use is starting from zero. Then ' : 'Everything before ' + focus + ' is holding. ') + 'The three moves below are the fastest way through it.</p>';
+      }
+      html += '<div class="bars">';
+      for (var k = 0; k < 5; k++) {
+        var w = Math.round(scores[k] / 4 * 100);
+        html += '<div class="bar"><span>' + AS[k] + '</span><div class="track"><div class="fill' + (scores[k] >= 3 ? ' done' : '') + '" style="width:' + w + '%"></div></div><span>' + scores[k] + '/4</span></div>';
+      }
+      html += '</div>';
+      if (focus) {
+        html += '<span class="mono muted">Your next three moves</span><ul class="moves">';
+        MOVES[focus].forEach(function (m) { html += '<li>' + m + '</li>'; });
+        html += '</ul>';
+        html += '<p class="fine">From the Stockroom: <b>' + LIB[focus] + '</b>' + (vaultFirst ? ', after <b>The vault template</b>' : '') + '. On the path, start at week ' + (vaultFirst ? 1 : WEEK[focus]) + '.</p>';
+        html += '<div class="cta-row"><a class="btn" href="#path">Open the path</a><a class="btn ghost" href="#stockroom">Open the Stockroom</a></div>';
+      } else {
+        html += '<div class="cta-row"><a class="btn" href="#contributors">Send us what you built</a></div>';
+      }
+      result.innerHTML = html;
+      result.hidden = false;
+      result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    document.getElementById('quizReset').addEventListener('click', function () { result.hidden = true; hint.hidden = true; });
+
+    // ---------- Path checklist (per-device convenience) ----------
+    var KEY = 'ano-path-v1';
+    var boxes = [];
+    for (var n = 1; n <= 16; n++) { var el = document.getElementById('p' + n); if (el) boxes.push(el); }
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (err) { saved = {}; }
+    boxes.forEach(function (b) { b.checked = !!saved[b.id]; });
+    function updateProgress() {
+      var done = boxes.filter(function (b) { return b.checked; }).length;
+      document.getElementById('progText').textContent = done + ' of ' + boxes.length + ' done';
+      document.getElementById('progFill').style.width = Math.round(done / boxes.length * 100) + '%';
+    }
+    boxes.forEach(function (b) {
+      b.addEventListener('change', function () {
+        var state = {};
+        boxes.forEach(function (x) { if (x.checked) state[x.id] = 1; });
+        try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (err) {}
+        updateProgress();
+      });
+    });
+    document.getElementById('pathReset').addEventListener('click', function () {
+      boxes.forEach(function (b) { b.checked = false; });
+      try { localStorage.removeItem(KEY); } catch (err) {}
+      updateProgress();
+    });
+    updateProgress();
+
+    // ---------- Copy the vault template ----------
+    var copyBtn = document.getElementById('copyTmpl');
+    var tmpl = document.getElementById('tmplText');
+    copyBtn.addEventListener('click', function () {
+      var text = tmpl.textContent;
+      var done = function () { copyBtn.textContent = 'Copied'; setTimeout(function () { copyBtn.textContent = 'Copy template'; }, 1800); };
+      var fallback = function () {
+        try { var r = document.createRange(); r.selectNodeContents(tmpl); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); copyBtn.textContent = 'Selected. Press copy.'; } catch (err) {}
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).then(done).catch(fallback); } else { fallback(); }
+    });
+
+    // ---------- Forms: open a prefilled email (no backend yet) ----------
+    var TO = 'kailin@noibu.com';
+    function wireForm(formId, thanksId, requireEmailId, subject, bodyFn) {
+      var form = document.getElementById(formId), thanks = document.getElementById(thanksId);
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var input = document.getElementById(requireEmailId);
+        var v = (input.value || '').trim();
+        if (!v || v.indexOf('@') < 1) { input.focus(); input.setAttribute('aria-invalid', 'true'); return; }
+        input.removeAttribute('aria-invalid');
+        var href = 'mailto:' + TO + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyFn());
+        form.hidden = true; thanks.hidden = false;
+        window.location.href = href;
+      });
+    }
+    wireForm('joinForm', 'thanks', 'email', 'Weekly drop: add me', function () { return 'Add me to the AI Native Operators weekly drop.\n\nEmail: ' + document.getElementById('email').value; });
+    wireForm('contribForm', 'contribThanks', 'cEmail', 'Contributor seat', function () {
+      return 'Name: ' + document.getElementById('cName').value + '\nStore: ' + document.getElementById('cStore').value + '\nEmail: ' + document.getElementById('cEmail').value + '\n\nWhat I built:\n' + document.getElementById('cWhat').value;
+    });
+  })();
+</script>
+
+</body>
+</html>
